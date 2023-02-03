@@ -27,6 +27,7 @@ var xm_utils = {
 var xingmark = {
     repl: {
         // 优先级：特殊语法 -> 行内语法 -> 整行语法 -> 换行
+        escape0: [/\\\\/g, '\0'],
         color: [/(?<!\\)\(([^\n\\]*?): ?([\s\S\n]*?)\)/g, xm_utils.handleColor],
         tag: [/(?<!\\)\[([^\n\\]*?): ?([\s\S\n]*?)\]/g, xm_utils.handleTag],
         heading: [/^(\+{1,6}) ?(.+)/mg, xm_utils.handleHeading],
@@ -38,9 +39,10 @@ var xingmark = {
         sub: xm_utils.make_tuple(',,', 'sub'),
         sup: xm_utils.make_tuple('\\^\\^', 'sup'),
         hr: [/^---$/mg, '<hr>'],
-        linebreak: [/(?<!\\)\n/g, '<br>'],
-        escape: [/(?<!\\)\\(?!\\)/g, ''],
-        escape2: [/\\\\/g, '\\']
+        continuation: [/(?<!\\)\\\n/g, ''],
+        escape: [/(?<!\\)\\\n?(?!\\)/g, ''],
+        linebreak: [/\n/g, '<br>'],
+        escape2: [/\0/g, '\\'],
     },
     render(text = '') {
         let res = text
