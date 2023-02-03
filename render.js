@@ -38,7 +38,7 @@ var xingmark = {
         sub: xm_utils.make_tuple(',,', 'sub'),
         sup: xm_utils.make_tuple('\\^\\^', 'sup'),
         hr: [/^---$/mg, '<hr>'],
-        linebreak: [/\n/g, '<br>'],
+        linebreak: [/(?<!\\)\n/g, '<br>'],
         escape: [/(?<!\\)\\(?!\\)/g, ''],
         escape2: [/\\\\/g, '\\']
     },
