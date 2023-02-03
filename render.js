@@ -50,7 +50,7 @@ var xingmark = {
             let _ = repl
             res = res.replace(this.repl[repl][0], this.repl[repl][1])
         }
-        res = res.replace(/^(<h[1-6]>)/, '<br>$1').replace('<hr><br>', '<hr>')
+        res = res.replace(/^(<h[1-6]>)/, '<br>$1').replace(/(<br>(?=<hr>))|((?<=<hr>)<br>)/g, '')
         return res
     }
 }
