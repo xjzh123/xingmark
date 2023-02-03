@@ -14,9 +14,10 @@ var xm_utils = {
         return `<font color="${attr}">${content}</font>`
     },
     handleTag(match = '', ...p) {
-        let attr = p[0]
-        let content = p[1]
-        return `<${attr}>${content}</${attr}>`
+        let start = p[0]
+        let tagname = p[1]
+        let content = p[2]
+        return `<${start}>${content}</${tagname}>`
     },
     handleHeading(match = '', ...p) {
         let level = p[0].length
@@ -26,19 +27,28 @@ var xm_utils = {
     handleSummary(match = '', ...p) {
         let summary = p[0]
         let content = p[1]
-        return `<details><summary>${summary}</summary>${content}</details>`
+        if (summary) {
+            return `<details><summary>${summary}</summary>${content}</details>`
+        } else {
+            return `<details>${content}</details>`
+        }
     },
 }
 var xingmark = {
     repl: {
         escape0: [/\\\\/g, '\0'],
-        summary: [/^> ?(.*?) ?{([\s\S\n]*?)}/mg, xm_utils.handleSummary],
-        hr: [/^---$/mg, '<hr>'],
+
+        summary: [/^> ?(.*?) ?{\n?([\s\S\n]*?)\n?}/mg, xm_utils.handleSummary],
+        hr: [/(^|\n)---($|\n)/g, '<hr>'],
         continuation: [/(?<!\\)\\\n/g, ''],
-        linebreak: [/\n/g, '<br>'],
-        color: [/(?<!\\)\(([^\n\\]*?): ?([\s\S\n]*?)\)/g, xm_utils.handleColor],
-        tag: [/(?<!\\)\[([^\n\\]*?): ?([\s\S\n]*?)\]/g, xm_utils.handleTag],
+
+        blockquote: [/(?<!\\)\[:(?: |\n)?([\s\S\n]*?)\n?\]/g, '<blockquote>$1</blockquote>'],
+        color: [/(?<!\\)\(([^\n\\]*?):(?: |\n)?([\s\S\n]*?)\n?\)/g, xm_utils.handleColor],
+        //               ( red       :          red text       )
+        tag: [/(?<!\\)\[(([a-z\-]+)(?: ?(?:[a-z\-]+?="[^"]*" ?|[a-z\-]+) ?)*):(?: |\n)?([\s\S\n]*?)\n?\]/g, xm_utils.handleTag],
+        //             [  div                   style="color:red"           :            in div       ]
         heading: [/^(\+{1,6}) ?(.+)/mg, xm_utils.handleHeading],
+
         bold: xm_utils.make_tuple('##', 'strong'),
         italic: xm_utils.make_tuple('//', 'i'),
         underlined: xm_utils.make_tuple('__', 'u'),
@@ -46,7 +56,10 @@ var xingmark = {
         mark: xm_utils.make_tuple('==', 'mark'),
         sub: xm_utils.make_tuple(',,', 'sub'),
         sup: xm_utils.make_tuple('\\^\\^', 'sup'),
-        escape: [/(?<!\\)\\\n?(?!\\)/g, ''],
+
+        linebreak: [/\n/g, '<br>'],
+
+        escape: [/(?<!\\)\\(?!\\)/g, ''],
         escape2: [/\0/g, '\\'],
     },
     render(text = '') {
@@ -54,7 +67,7 @@ var xingmark = {
         for (let repl in this.repl) {
             res = res.replace(this.repl[repl][0], this.repl[repl][1])
         }
-        res = res.replace(/^(<h[1-6]>)/, '<br>$1').replace(/(<br>(?=<hr>|<\/details>))|((?<=<hr>|<\/summary>)<br>)/g, '')
+        res = res.replace(/^(<h[1-6]>)/, '<br>$1')
         return res
     }
 }
