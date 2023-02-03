@@ -1,0 +1,21 @@
+:root {
+    background: #eeeeee;
+}
+
+main {
+    margin: auto;
+}
+
+#input {
+    width: 100%;
+    height: 20em;
+}
+
+#output {
+    width: 100%;
+    height: 5em;
+}
+
+article {
+    color: gray;
+}
