@@ -23,10 +23,19 @@ var xm_utils = {
         let content = p[1]
         return `<h${level}>${content}</h${level}>`
     },
+    handleSummary(match = '', ...p) {
+        let summary = p[0]
+        let content = p[1]
+        return `<details><summary>${summary}</summary>${content}</details>`
+    },
 }
 var xingmark = {
     repl: {
-        // 优先级：特殊语法 -> 行内语法 -> 整行语法 -> 换行
+        summary: [/^> ?(.*?) ?{([\s\S\n]*?)}/mg, xm_utils.handleSummary],
+        hr: [/^---$/mg, '<hr>'],
+        continuation: [/(?<!\\)\\\n/g, ''],
+        escape: [/(?<!\\)\\\n?(?!\\)/g, ''],
+        linebreak: [/\n/g, '<br>'],
         escape0: [/\\\\/g, '\0'],
         color: [/(?<!\\)\(([^\n\\]*?): ?([\s\S\n]*?)\)/g, xm_utils.handleColor],
         tag: [/(?<!\\)\[([^\n\\]*?): ?([\s\S\n]*?)\]/g, xm_utils.handleTag],
@@ -38,19 +47,14 @@ var xingmark = {
         mark: xm_utils.make_tuple('==', 'mark'),
         sub: xm_utils.make_tuple(',,', 'sub'),
         sup: xm_utils.make_tuple('\\^\\^', 'sup'),
-        hr: [/^---$/mg, '<hr>'],
-        continuation: [/(?<!\\)\\\n/g, ''],
-        escape: [/(?<!\\)\\\n?(?!\\)/g, ''],
-        linebreak: [/\n/g, '<br>'],
         escape2: [/\0/g, '\\'],
     },
     render(text = '') {
         let res = text
         for (let repl in this.repl) {
-            let _ = repl
             res = res.replace(this.repl[repl][0], this.repl[repl][1])
         }
-        res = res.replace(/^(<h[1-6]>)/, '<br>$1').replace(/(<br>(?=<hr>))|((?<=<hr>)<br>)/g, '')
+        res = res.replace(/^(<h[1-6]>)/, '<br>$1').replace(/(<br>(?=<hr>|<\/details>))|((?<=<hr>|<\/summary>)<br>)/g, '')
         return res
     }
 }
