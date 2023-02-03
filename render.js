@@ -31,12 +31,11 @@ var xm_utils = {
 }
 var xingmark = {
     repl: {
+        escape0: [/\\\\/g, '\0'],
         summary: [/^> ?(.*?) ?{([\s\S\n]*?)}/mg, xm_utils.handleSummary],
         hr: [/^---$/mg, '<hr>'],
         continuation: [/(?<!\\)\\\n/g, ''],
-        escape: [/(?<!\\)\\\n?(?!\\)/g, ''],
         linebreak: [/\n/g, '<br>'],
-        escape0: [/\\\\/g, '\0'],
         color: [/(?<!\\)\(([^\n\\]*?): ?([\s\S\n]*?)\)/g, xm_utils.handleColor],
         tag: [/(?<!\\)\[([^\n\\]*?): ?([\s\S\n]*?)\]/g, xm_utils.handleTag],
         heading: [/^(\+{1,6}) ?(.+)/mg, xm_utils.handleHeading],
@@ -47,6 +46,7 @@ var xingmark = {
         mark: xm_utils.make_tuple('==', 'mark'),
         sub: xm_utils.make_tuple(',,', 'sub'),
         sup: xm_utils.make_tuple('\\^\\^', 'sup'),
+        escape: [/(?<!\\)\\\n?(?!\\)/g, ''],
         escape2: [/\0/g, '\\'],
     },
     render(text = '') {
