@@ -92,7 +92,7 @@ var xingmark = {
         detail: {
             type: 'nest',
             start: [/(?:^|\n)> ?(.*?) ?{\n?/, xm_utils.detailStart],
-            end: [/\n?}/, '</details>']
+            end: [/(?<!\\)\n?}/, '</details>']
         },
 
         hr: [/(^|\n)---($|\n)/g, '<hr>'],

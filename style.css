@@ -10,9 +10,25 @@ textarea {
     resize: none;
 }
 
-#input {
-    width: 100%;
+#container {
+    display: flex;
+    justify-content: space-around;
+    height: 20em
+}
+
+#input-container, #preview-container {
+    width: 48%;
     height: 20em;
+}
+
+#preview {
+    background-color: white;
+    overflow: auto;
+}
+
+#input, #preview {
+    width: 100%;
+    height: 80%;
 }
 
 #output {

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,18 +9,28 @@
     <script src="render.js"></script>
     <link rel="stylesheet" type="text/css" href="style.css">
 </head>
+
 <body>
     <main>
         <h1>星聊消息编辑器</h1>
         <h2>XingMark Playground</h2>
-        输入源代码：
-        <textarea name="input" id="input" placeholder="input"></textarea>
-        输出HTML：<button type="button" id="copy">点击复制</button>
+        <div id="container">
+            <div id="input-container">
+                <p>输入源代码：（一定要复制下面的HTML才能在星聊里发）</p>
+                <textarea name="input" id="input" placeholder="input"></textarea>
+            </div>
+            <div id="preview-container">
+                <p>预览：</p>
+                <div id="preview"></div>
+            </div>
+        </div>
+        <p>输出HTML：<button type="button" id="copy">点击复制</button></p>
         <textarea name="output" id="output" placeholder="output" disabled></textarea>
         <h3>XingMark语法参考</h3>
         <article>
-            可以随便换行。<br>一行开头的+代表标题，几个+就是几级标题。<br>##粗体##会产生<strong>粗体</strong><br>//斜体//会产生<i>斜体</i><br>__下划线__会产生<u>下划线</u><br>--删除线--会产生<del>删除线</del><br>^^上标^^会产生<sup>上标</sup><br>,,下标,,会产生<sub>下标</sub><br>(red:红色)会产生<font color="red">红色</font><br>==高亮==会产生<mark>高亮</mark><br>[small:小字]会产生<small>小字</small><br>[big:大字]会产生<big>大字</big><br>使用三个连字符创建分割线。<br>---<hr>使用以下语法创建折叠：<br>> 折叠内容 {<br>展开内容<br>}<details><summary>折叠内容</summary>展开内容</details><hr>使用以下语法创建引用：<br>[:<br>引用内容<br>]<br><blockquote>引用内容</blockquote><hr>用反斜杠来转义，比如你需要输入四个井号，可以输入\####。要输入一个反斜杠，可以输入\\。<hr>事实上本语法参考的最初版本的HTML代码就是用XingMark生成的。<br>（当然，这意味着其中产生了一些过时的HTML语法，比如font元素的使用，这是因为在fiora改变字体颜色似乎只能使用font。）
+            <details><summary>点击展开</summary>可以随便换行。<br>一行开头的+代表标题，几个+就是几级标题。<br>##粗体##会产生<strong>粗体</strong><br>//斜体//会产生<i>斜体</i><br>__下划线__会产生<u>下划线</u><br>--删除线--会产生<del>删除线</del><br>^^上标^^会产生<sup>上标</sup><br>,,下标,,会产生<sub>下标</sub><br>(red:红色)会产生<font color="red">红色</font><br>==高亮==会产生<mark>高亮</mark><br>[small:小字]会产生<small>小字</small><br>[big:大字]会产生<big>大字</big><br>使用三个连字符创建分割线。<br>---<hr>使用以下语法创建折叠：<br>> 折叠内容 {<br>展开内容<br>}<details><summary>折叠内容</summary>展开内容</details><hr>使用以下语法创建引用：<br>[:<br>引用内容<br>]<br><blockquote>引用内容</blockquote><hr>用反斜杠来转义，比如你需要输入四个井号，可以输入\####。要输入一个反斜杠，可以输入\\。<hr>事实上本语法参考的最初版本的HTML代码就是用XingMark生成的。<br>（当然，这意味着其中产生了一些过时的HTML语法，比如font元素的使用，这是因为在fiora改变字体颜色似乎只能使用font。）</details>
             <!--
+> 点击展开 {
 可以随便换行。
 一行开头的+代表标题，几个+就是几级标题。
 \##粗体\##会产生##粗体##
@@ -36,9 +47,9 @@
 \-\-\-
 ---
 使用以下语法创建折叠：
-\> 折叠内容 {
+\> 折叠内容 \{
 展开内容
-}
+\}
 > 折叠内容 {
 展开内容
 }
@@ -55,22 +66,45 @@
 ---
 事实上本语法参考的最初版本的HTML代码就是用XingMark生成的。
 （当然，这意味着其中产生了一些过时的HTML语法，比如font元素的使用，这是因为在fiora改变字体颜色似乎只能使用font。）
+}
             -->
         </article>
         <p>XingMark比不上Markdown等语言的功能强大、用途广泛，它只负责方便编辑fiora消息。是的，这是个没什么用的即兴作品。如果它出什么问题了，别来找我（doge</p>
         <p>By <a href="https://www.pillows.net.eu.org">4n0n4me</a></p>
-        <p>欢迎查看我的其它作品：<a href="https://textboard.xjzh123.repl.co">Textboard</a> | <a href="https://hcwiki.netlify.app">HC Wiki</a></p>
+        <p>欢迎查看我的其它作品：<a href="https://textboard.xjzh123.repl.co">Textboard</a> | <a
+                href="https://hcwiki.netlify.app">HC Wiki</a></p>
     </main>
     <script>
+        let input = $('#input')
+        let preview = $('#preview')
+        let output = $('#output')
+        let inputScrolling = false
+        let previewScrolling = false
         /** @returns{HTMLElement} */
         function $(query) {
             return document.querySelector(query)
         }
-        $('#input').oninput = (e) => {
-            $('#output').value = xingmark.render(e.target.value)
+        input.oninput = (e) => {
+            output.value = preview.innerHTML = xingmark.render(e.target.value)
+        }
+        input.onscroll = (e) => { // https://blog.csdn.net/Super___Boy/article/details/104361369
+            if (inputScrolling) {
+                preview.scrollTop = input.scrollTop / (input.scrollHeight - input.clientHeight) * (preview.scrollHeight - preview.clientHeight) // 妙啊这个计算方法
+                previewScrolling = false
+            } else {
+                inputScrolling = true
+            }
+        }
+        preview.onscroll = (e) => {
+            if (previewScrolling) {
+                input.scrollTop = preview.scrollTop / (preview.scrollHeight - preview.clientHeight) * (input.scrollHeight - input.clientHeight)
+                inputScrolling = false
+            } else {
+                previewScrolling = true
+            }
         }
         $('#copy').onclick = (e) => {
-            navigator.clipboard.writeText($('#output').value)
+            navigator.clipboard.writeText(output.value)
             $('#copy').innerText = '已复制...'
             setTimeout(() => {
                 $('#copy').innerText = '点击复制'
@@ -78,4 +112,5 @@
         }
     </script>
 </body>
+
 </html>
