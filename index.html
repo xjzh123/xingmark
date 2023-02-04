@@ -28,7 +28,7 @@
         <textarea name="output" id="output" placeholder="output" disabled></textarea>
         <h3>XingMark语法参考</h3>
         <article>
-            <details><summary>点击展开</summary>可以随便换行。<br>一行开头的+代表标题，几个+就是几级标题。<br>##粗体##会产生<strong>粗体</strong><br>//斜体//会产生<i>斜体</i><br>__下划线__会产生<u>下划线</u><br>--删除线--会产生<del>删除线</del><br>^^上标^^会产生<sup>上标</sup><br>,,下标,,会产生<sub>下标</sub><br>(red:红色)会产生<font color="red">红色</font><br>==高亮==会产生<mark>高亮</mark><br>[small:小字]会产生<small>小字</small><br>[big:大字]会产生<big>大字</big><br>使用三个连字符创建分割线。<br>---<hr>使用以下语法创建折叠：<br>> 折叠内容 {<br>展开内容<br>}<details><summary>折叠内容</summary>展开内容</details><hr>使用以下语法创建引用：<br>[:<br>引用内容<br>]<br><blockquote>引用内容</blockquote><hr>用反斜杠来转义，比如你需要输入四个井号，可以输入\####。要输入一个反斜杠，可以输入\\。<hr>事实上本语法参考的最初版本的HTML代码就是用XingMark生成的。<br>（当然，这意味着其中产生了一些过时的HTML语法，比如font元素的使用，这是因为在fiora改变字体颜色似乎只能使用font。）</details>
+            <details><summary>点击展开</summary>可以随便换行。<br>一行开头的+代表标题，几个+就是几级标题。<br>##粗体##会产生<strong>粗体</strong><br>//斜体//会产生<i>斜体</i><br>__下划线__会产生<u>下划线</u><br>--删除线--会产生<del>删除线</del><br>^^上标^^会产生<sup>上标</sup><br>,,下标,,会产生<sub>下标</sub><br>(red:红色)会产生<font color="red">红色</font><br>==高亮==会产生<mark>高亮</mark><br>[small:小字]会产生<small>小字</small><br>[big:大字]会产生<big>大字</big><br>使用三个连字符创建分割线。<br>---<hr>使用以下语法创建折叠：<br>> 折叠内容 {<br>展开内容<br>}<details><summary>折叠内容</summary>展开内容</details><hr>使用以下语法创建引用：<br>[:<br>引用内容<br>]<br><blockquote>引用内容</blockquote><hr>用`代码`来创建<code>代码</code>，`也可以单独占据一行。<hr>用反斜杠来转义，比如你需要输入四个井号，可以输入\####。要输入一个反斜杠，可以输入\\。<hr>事实上本语法参考的最初版本的HTML代码就是用XingMark生成的。<br>（当然，这意味着其中产生了一些过时的HTML语法，比如font元素的使用，这是因为在fiora改变字体颜色似乎只能使用font。）</details>
             <!--
 > 点击展开 {
 可以随便换行。
@@ -61,6 +61,8 @@
 [:
 引用内容
 ]
+---
+用\`代码\`来创建`代码`，\`也可以单独占据一行。
 ---
 用反斜杠来转义，比如你需要输入四个井号，可以输入\\\####。要输入一个反斜杠，可以输入\\\\。
 ---

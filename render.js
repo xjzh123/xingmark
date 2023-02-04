@@ -50,6 +50,21 @@ var xm_utils = {
         }
         return tmp
     },
+    altersearch(patterns, str) {
+        let p1 = patterns[0]
+        let p2 = patterns[1]
+        let pattern = p1
+        let result = []
+        match = str.match(pattern)
+        while (match) {
+            result.push(str.slice(0, match.index), match[0])
+            str = str.slice(match.index + match[0].length)
+            pattern = pattern == p1 ? p2 : p1
+            match = str.match(pattern)
+        }
+        result.push(str)
+        return result
+    },
     nest(text, rule) {
         let start = rule.start[0]
         let end = rule.end[0]
@@ -78,6 +93,22 @@ var xm_utils = {
             } else if (cases[i] == -1 && levels[i] > 0) {
                 result.push(list[i].replace(end, rule.end[1]).replace('\0', tmps[tmps.length - 1][1]))
                 tmps.pop()
+            } else {
+                result.push(list[i])
+            }
+        }
+        return result.join('')
+    },
+    noNest(text, rule) {
+        let start = rule.start[0]
+        let end = rule.end[0]
+        let list = this.altersearch([start, end], text)
+        let result = []
+        for (let i = 0; i < list.length; i++) {
+            if (i % 4 == 1) {
+                result.push(list[i].replace(start, rule.start[1]))
+            } else if (i % 4 == 3) {
+                result.push(list[i].replace(end, rule.end[1]))
             } else {
                 result.push(list[i])
             }
@@ -116,6 +147,12 @@ var xingmark = {
             end: [/\n?\]/, '</\0>'],
         },
 
+        code: {
+            type: 'noNest',
+            start: [/(?<![\\/])`\n?/, '<code>'],
+            end: [/(?<!\\)\n?`/, '</code>'],
+        },
+
         heading: [/^(\+{1,6}) ?(.+)/mg, xm_utils.handleHeading],
 
         bold: xm_utils.make_tuple('##', 'strong'),
@@ -140,6 +177,8 @@ var xingmark = {
             } else if (typeof rule == 'object') {
                 if (rule.type == 'nest') {
                     res = xm_utils.nest(res, rule)
+                } else if (rule.type == 'noNest') {
+                    res = xm_utils.noNest(res, rule)
                 }
             }
         }
