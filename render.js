@@ -8,11 +8,6 @@ var xm_utils = {
     make_tuple(pair, tag) {
         return [this.pair(pair), this.tag(tag)]
     },
-    handleColor(match = '', ...p) {
-        let attr = p[0]
-        let content = p[1]
-        return `<font color="${attr}">${content}</font>`
-    },
     handleTag(match = '', ...p) {
         let start = p[0]
         let tagname = p[1]
@@ -24,29 +19,103 @@ var xm_utils = {
         let content = p[1]
         return `<h${level}>${content}</h${level}>`
     },
-    handleSummary(match = '', ...p) {
+    detailStart(match = '', ...p) {
         let summary = p[0]
-        let content = p[1]
         if (summary) {
-            return `<details><summary>${summary}</summary>${content}</details>`
+            return `<details><summary>${summary}</summary>`
         } else {
-            return `<details>${content}</details>`
+            return `<details>`
         }
+    },
+    search(pattern, str) {
+        let result = []
+        match = str.match(pattern)
+        while (match) {
+            result.push(str.slice(0, match.index), match[0])
+            str = str.slice(match.index + match[0].length)
+            match = str.match(pattern)
+        }
+        result.push(str)
+        return result
+    },
+    multisearch(patterns, str) {
+        let tmp = this.search(patterns[0], str)
+        let tmp2 = []
+        for (let i = 1; i < patterns.length; i++) {
+            tmp.forEach(sub => {
+                tmp2 = tmp2.concat(this.search(patterns[i], sub))
+            })
+            tmp = tmp2
+            tmp2 = []
+        }
+        return tmp
+    },
+    nest(text, rule) {
+        let start = rule.start[0]
+        let end = rule.end[0]
+        let list = this.multisearch([start, end], text)
+        let level = 0
+        let cases = []
+        let levels = []
+        for (let sub of list) {
+            levels.push(level)
+            if (start.test(sub)) {
+                cases.push(1)
+                level++
+            } else if (end.test(sub) && level > 0) {
+                cases.push(-1)
+                level--
+            } else {
+                cases.push(0)
+            }
+        }
+        let tmps = []
+        let result = []
+        for (let i = 0; i < cases.length; i++) {
+            if (cases[i] == 1) {
+                tmps.push(list[i].match(start))
+                result.push(list[i].replace(start, rule.start[1]))
+            } else if (cases[i] == -1 && levels[i] > 0) {
+                result.push(list[i].replace(end, rule.end[1]).replace('\0', tmps[tmps.length - 1][1]))
+                tmps.pop()
+            } else {
+                result.push(list[i])
+            }
+        }
+        return result.join('')
     },
 }
 var xingmark = {
-    repl: {
+    rules: {
         escape0: [/\\\\/g, '\0'],
 
-        summary: [/^> ?(.*?) ?{\n?([\s\S\n]*?)\n?}/mg, xm_utils.handleSummary],
+        detail: {
+            type: 'nest',
+            start: [/(?:^|\n)> ?(.*?) ?{\n?/, xm_utils.detailStart],
+            end: [/\n?}/, '</details>']
+        },
+
         hr: [/(^|\n)---($|\n)/g, '<hr>'],
         continuation: [/(?<!\\)\\\n/g, ''],
 
-        blockquote: [/(?<!\\)\[:(?: |\n)?([\s\S\n]*?)\n?\]/g, '<blockquote>$1</blockquote>'],
-        color: [/(?<!\\)\(([^\n\\]*?):(?: |\n)?([\s\S\n]*?)\n?\)/g, xm_utils.handleColor],
-        //               ( red       :          red text       )
-        tag: [/(?<!\\)\[(([a-z\-]+)(?: ?(?:[a-z\-]+?="[^"]*" ?|[a-z\-]+) ?)*):(?: |\n)?([\s\S\n]*?)\n?\]/g, xm_utils.handleTag],
-        //             [  div                   style="color:red"           :            in div       ]
+        blockquote: { // no /.../g for nest!
+            type: 'nest',
+            start: [/(?<!\\)\[:(?: |\n)?/, '<blockquote>'],
+            end: [/\n?\]/, '</blockquote>'],
+        },
+
+        color: {
+            type: 'nest',
+            start: [/(?<!\\)\("?([^\n\\]*?)"?:(?: |\n)?/, '<font color="$1">'],
+            end: [/\n?\)/, '</font>'],
+        },
+
+        tag: {
+            type: 'nest',
+            start: [/(?<!\\)\[(([a-z\-]+)(?: ?(?:[a-z\-]+?="[^"]*"|[a-z\-]+) ?)*):(?: |\n)?/, '<$1>'],
+            end: [/\n?\]/, '</\0>'],
+        },
+
         heading: [/^(\+{1,6}) ?(.+)/mg, xm_utils.handleHeading],
 
         bold: xm_utils.make_tuple('##', 'strong'),
@@ -64,8 +133,15 @@ var xingmark = {
     },
     render(text = '') {
         let res = text
-        for (let repl in this.repl) {
-            res = res.replace(this.repl[repl][0], this.repl[repl][1])
+        for (let key in this.rules) {
+            let rule = this.rules[key]
+            if (Array.isArray(rule)) {
+                res = res.replace(rule[0], rule[1])
+            } else if (typeof rule == 'object') {
+                if (rule.type == 'nest') {
+                    res = xm_utils.nest(res, rule)
+                }
+            }
         }
         res = res.replace(/^(<h[1-6]>)/, '<br>$1')
         return res
